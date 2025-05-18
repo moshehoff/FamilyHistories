@@ -1,23 +1,23 @@
 # All People
 
-* [[Aaron Harry אהרון Hoffman]]
-* [[Alyce Breazeale]]
-* [[Bella Hoffman]]
-* [[Dianne Helen דינה Kemp]]
-* [[Dr PETER פנחס HOFFMAN]]
-* [[Edith צירל Hoffman]]
-* [[Eduard Isak יצחק אליהו יצחק הלוי Spielmann]]
-* [[Edward Denis אליהו Hoffman]]
-* [[Hila Sarai הילה שרי Hoffman]]
-* [[Hyman Judah Hoffman]]
-* [[Jack Hoffman]]
-* [[Josef יוסף יוסף בן אליהו הלוי Spielmann]]
-* [[Karl Ha'im חיים Spielmann]]
-* [[Katharina Käthe Davis]]
-* [[Moshe משה Hoffman]]
-* [[Moshe משה בועז Hoffman]]
-* [[Theresia (Reisl) ריזל Spielmann]]
-* [[Tirza Hoffman Levi]]
-* [[Tobl Hochman (Hoffman)]]
-* [[Varda ורדה Hoffman]]
-* [[Wolf Hoffman]]
+* [Aaron Harry אהרון Hoffman](Aaron%20Harry%20%D7%90%D7%94%D7%A8%D7%95%D7%9F%20Hoffman.md)
+* [Alyce Breazeale](Alyce%20Breazeale.md)
+* [Bella Hoffman](Bella%20Hoffman.md)
+* [Dianne Helen דינה Kemp](Dianne%20Helen%20%D7%93%D7%99%D7%A0%D7%94%20Kemp.md)
+* [Dr PETER פנחס HOFFMAN](Dr%20PETER%20%D7%A4%D7%A0%D7%97%D7%A1%20HOFFMAN.md)
+* [Edith צירל Hoffman](Edith%20%D7%A6%D7%99%D7%A8%D7%9C%20Hoffman.md)
+* [Eduard Isak יצחק אליהו יצחק הלוי Spielmann](Eduard%20Isak%20%D7%99%D7%A6%D7%97%D7%A7%20%D7%90%D7%9C%D7%99%D7%94%D7%95%20%D7%99%D7%A6%D7%97%D7%A7%20%D7%94%D7%9C%D7%95%D7%99%20Spielmann.md)
+* [Edward Denis אליהו Hoffman](Edward%20Denis%20%D7%90%D7%9C%D7%99%D7%94%D7%95%20Hoffman.md)
+* [Hila Sarai הילה שרי Hoffman](Hila%20Sarai%20%D7%94%D7%99%D7%9C%D7%94%20%D7%A9%D7%A8%D7%99%20Hoffman.md)
+* [Hyman Judah Hoffman](Hyman%20Judah%20Hoffman.md)
+* [Jack Hoffman](Jack%20Hoffman.md)
+* [Josef יוסף יוסף בן אליהו הלוי Spielmann](Josef%20%D7%99%D7%95%D7%A1%D7%A3%20%D7%99%D7%95%D7%A1%D7%A3%20%D7%91%D7%9F%20%D7%90%D7%9C%D7%99%D7%94%D7%95%20%D7%94%D7%9C%D7%95%D7%99%20Spielmann.md)
+* [Karl Ha'im חיים Spielmann](Karl%20Ha%27im%20%D7%97%D7%99%D7%99%D7%9D%20Spielmann.md)
+* [Katharina Käthe Davis](Katharina%20K%C3%A4the%20Davis.md)
+* [Moshe משה Hoffman](Moshe%20%D7%9E%D7%A9%D7%94%20Hoffman.md)
+* [Moshe משה בועז Hoffman](Moshe%20%D7%9E%D7%A9%D7%94%20%D7%91%D7%95%D7%A2%D7%96%20Hoffman.md)
+* [Theresia (Reisl) ריזל Spielmann](Theresia%20%28Reisl%29%20%D7%A8%D7%99%D7%96%D7%9C%20Spielmann.md)
+* [Tirza Hoffman Levi](Tirza%20Hoffman%20Levi.md)
+* [Tobl Hochman (Hoffman)](Tobl%20Hochman%20%28Hoffman%29.md)
+* [Varda ורדה Hoffman](Varda%20%D7%95%D7%A8%D7%93%D7%94%20Hoffman.md)
+* [Wolf Hoffman](Wolf%20Hoffman.md)

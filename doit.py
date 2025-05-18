@@ -1,5 +1,7 @@
 import os
 import argparse
+import urllib.parse
+
 
 
 def debug(msg):
@@ -194,15 +196,20 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
 ##############################################################################
 
 def write_people_index(people_dir):
-    """Create (or overwrite) People/index.md with a list of all profiles."""
+    """Create/overwrite People/index.md with Markdown links."""
     files = sorted(
         f for f in os.listdir(people_dir)
         if f.lower().endswith(".md") and f != "index.md"
     )
+
     lines = ["# All People\n"]
-    lines += [f"* [[{f[:-3]}]]" for f in files]   # strip .md
-    with open(os.path.join(people_dir, "index.md"), "w", encoding="utf-8") as fh:
-        fh.write("\n".join(lines) + "\n")
+    for fname in files:
+        title = fname[:-3]                      # strip .md
+        url   = urllib.parse.quote(fname)       # encode spaces/עברית
+        lines.append(f"* [{title}]({url})")
+
+    with open(os.path.join(people_dir, "index.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 ##############################################################################
