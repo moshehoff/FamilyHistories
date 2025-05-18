@@ -1,0 +1,2 @@
+# שמור את כל קובצי Markdown עם LF בלבד
+*.md text eol=lf
