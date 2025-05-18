@@ -7,16 +7,9 @@ def debug(msg):
 
 
 def safe_filename(name: str) -> str:
-    """
-    Return a filename-safe version of *name*.
-    מאפשר אותיות (כולל עברית), ספרות, רווח, מקף, קו-תחתי,
-    סוגריים עגולים ואפוסטרוף.
-    """
-    allowed = "-_ ()'"          # ← הוספנו את ' לרשימה
-    return "".join(
-        c if c.isalnum() or c in allowed else "_"
-        for c in name
-    ).strip()
+    """Return a filename-safe version of *name* (עברית, (), ', -, _)."""
+    allowed = "-_ ()'"
+    return "".join(c if c.isalnum() or c in allowed else "_" for c in name).strip()
 
 
 ##############################################################################
@@ -47,11 +40,10 @@ def parse_gedcom_file(path):
             continue
         data = parts[2].strip() if len(parts) > 2 else ""
 
-        # New record pointer --------------------------------------------------
+        # New record pointer
         if level == 0 and tag.startswith("@"):
             current_id = tag
             current_type = data.split(" ", 1)[0] if data else "UNKNOWN"
-            debug(f"Record {current_id} ⇒ {current_type}")
             if current_type == "INDI":
                 individuals.setdefault(current_id, {})
             elif current_type == "FAM":
@@ -59,7 +51,7 @@ def parse_gedcom_file(path):
             in_birt = in_deat = False
             continue
 
-        # Handle individuals --------------------------------------------------
+        # Individuals
         if current_type == "INDI":
             indi = individuals[current_id]
             if level == 1:
@@ -86,7 +78,7 @@ def parse_gedcom_file(path):
                 elif in_deat:
                     indi.setdefault("DEAT", {})[tag] = data
 
-        # Handle families -----------------------------------------------------
+        # Families
         elif current_type == "FAM":
             fam = families[current_id]
             if level == 1:
@@ -131,29 +123,27 @@ def norm_family(fid, d):
 
 
 ##############################################################################
-# 3) BUILD NOTES (wiki links, merge bios, no YAML)
+# 3) BUILD NOTES (wiki-links + bios)
 ##############################################################################
+
 def build_obsidian_notes(individuals, families, out_dir, bios_dir):
-    """Create/overwrite People/*.md files, merging bios if present."""
     inds = {i: norm_individual(i, d) for i, d in individuals.items()}
     fams = {f: norm_family(f, d) for f, d in families.items()}
     name_of = {i: info["name"] or i for i, info in inds.items()}
 
-    wl  = lambda label: f"[[{label or 'Unknown'}]]"
+    wl  = lambda lbl: f"[[{lbl or 'Unknown'}]]"
     ptr = lambda iid: wl(name_of.get(iid, iid)) if iid else ""
 
     people_dir = os.path.join(out_dir, "People")
     os.makedirs(people_dir, exist_ok=True)
 
     for pid, p in inds.items():
-        # ---------- parents & siblings ----------
         parents, siblings = [], []
         if p["famc"] and p["famc"] in fams:
             fam = fams[p["famc"]]
             parents  = [ptr(x) for x in (fam.get("husband"), fam.get("wife")) if x]
             siblings = [ptr(c) for c in fam["children"] if c != pid]
 
-        # ---------- spouses & children ----------
         spouses, children = [], []
         for fid in p["fams"]:
             fam = fams.get(fid)
@@ -165,8 +155,7 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
                 spouses.append(ptr(fam["husband"]))
             children.extend(ptr(c) for c in fam["children"] if c != pid)
 
-        # ---------- load biography ----------
-        id_clean = pid.replace("@", "")          # ← מסירים את כל ה־@
+        id_clean = pid.replace("@", "")
         bio_text = ""
         for ext in ("md", "MD"):
             bio_path = os.path.join(bios_dir, f"{id_clean}.{ext}")
@@ -175,15 +164,13 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
                     bio_text = bf.read().strip()
                 break
 
-        # ---------- place links ----------
-        birth_place_link = wl(p["birth_place"]) if p["birth_place"] else ""
-        death_place_link = wl(p["death_place"]) if p["death_place"] else ""
+        bp_link = wl(p["birth_place"]) if p["birth_place"] else ""
+        dp_link = wl(p["death_place"]) if p["death_place"] else ""
 
-        # ---------- body ----------
         lines = [
             f"# {p['name']}",
-            f"**Birth**: {p['birth_date']}" + (f" at {birth_place_link}" if birth_place_link else ""),
-            f"**Death**: {p['death_date']}" + (f" at {death_place_link}" if death_place_link else ""),
+            f"**Birth**: {p['birth_date']}" + (f" at {bp_link}" if bp_link else ""),
+            f"**Death**: {p['death_date']}" + (f" at {dp_link}" if dp_link else ""),
             f"**Occupation**: {p['occupation'] or '—'}",
             "\n**Parents**:\n"   + ("\n".join(parents)  or "—"),
             "\n**Siblings**:\n" + ("\n".join(siblings) or "—"),
@@ -195,19 +182,35 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
         if bio_text:
             lines += ["", "**Biography**:", bio_text]
 
-        lines.append(f"\n**GEDCOM ID**: {pid}")   # always add ID at end
+        lines.append(f"\n**GEDCOM ID**: {pid}")
 
-        # ---------- write file ----------
         out_path = os.path.join(people_dir, safe_filename(p["name"] or pid) + ".md")
         with open(out_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines) + "\n")
 
+
 ##############################################################################
-# 4) CLI
+# 4) CREATE People/index.md  ### NEW
+##############################################################################
+
+def write_people_index(people_dir):
+    """Create (or overwrite) People/index.md with a list of all profiles."""
+    files = sorted(
+        f for f in os.listdir(people_dir)
+        if f.lower().endswith(".md") and f != "index.md"
+    )
+    lines = ["# All People\n"]
+    lines += [f"* [[{f[:-3]}]]" for f in files]   # strip .md
+    with open(os.path.join(people_dir, "index.md"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
+
+
+##############################################################################
+# 5) CLI
 ##############################################################################
 
 def main():
-    argp = argparse.ArgumentParser(description="GEDCOM ➜ Obsidian (no YAML) + bios merge")
+    argp = argparse.ArgumentParser(description="GEDCOM ➜ Obsidian notes + bios merge")
     argp.add_argument("gedcom_file", help="Path to .ged file")
     argp.add_argument("-o", "--output", default="ObsidianVault", help="Output directory")
     argp.add_argument("--bios-dir", default=None, help="Directory with bio *.md files (default: <output>/bios)")
@@ -221,6 +224,10 @@ def main():
     debug(f"{len(inds)} individuals • {len(fams)} families")
     debug("Building Markdown notes …")
     build_obsidian_notes(inds, fams, args.output, args.bios_dir)
+
+    ### NEW: כתוב עמוד אינדקס לאנשים
+    write_people_index(os.path.join(args.output, "People"))
+
     debug(f"Done → {args.output}")
 
 

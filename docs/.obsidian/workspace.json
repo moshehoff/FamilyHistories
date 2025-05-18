@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "18f747bd50b1e0d7",
+        "id": "59efcb6dc5b11eab",
         "type": "tabs",
         "children": [
           {
-            "id": "b510bdc8b124d952",
+            "id": "d5bc5af98f19a3dc",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "People/Edith צירל Hoffman.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Edith צירל Hoffman"
+              "title": "index"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "People/Edith צירל Hoffman.md",
+                "file": "index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Edith צירל Hoffman"
+              "title": "Backlinks for index"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "People/Edith צירל Hoffman.md",
+                "file": "index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Edith צירל Hoffman"
+              "title": "Outgoing links from index"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "People/Edith צירל Hoffman.md",
+                "file": "index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Edith צירל Hoffman"
+              "title": "Outline of index"
             }
           }
         ]
@@ -168,6 +168,34 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "b510bdc8b124d952",
-  "lastOpenFiles": []
+  "active": "d5bc5af98f19a3dc",
+  "lastOpenFiles": [
+    "People/index.md",
+    "index.md",
+    "[[People",
+    "People 1.md",
+    "People/Edith צירל Hoffman.md",
+    "People/Dianne Helen דינה Kemp.md",
+    "People.md",
+    "People/Wolf Hoffman.md",
+    "People/Varda ורדה Hoffman.md",
+    "People/Tobl Hochman (Hoffman).md",
+    "People/Tirza Hoffman Levi.md",
+    "People/Theresia (Reisl) ריזל Spielmann.md",
+    "People/Moshe משה בועז Hoffman.md",
+    "People/Moshe משה Hoffman.md",
+    "People/Karl Ha'im חיים Spielmann.md",
+    "People/Katharina Käthe Davis.md",
+    "People/Josef יוסף יוסף בן אליהו הלוי Spielmann.md",
+    "People/Jack Hoffman.md",
+    "People/Hyman Judah Hoffman.md",
+    "People/Hila Sarai הילה שרי Hoffman.md",
+    "People/Edward Denis אליהו Hoffman.md",
+    "People/Aaron Harry אהרון Hoffman.md",
+    "People/Eduard Isak יצחק אליהו יצחק הלוי Spielmann.md",
+    "People/Bella Hoffman.md",
+    "People/Dr PETER פנחס HOFFMAN.md",
+    "People/Alyce Breazeale.md",
+    "People"
+  ]
 }
