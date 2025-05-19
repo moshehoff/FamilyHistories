@@ -2,3 +2,7 @@
 ".obsidian/" 
 "site/public/"    
 "site/node_modules/" 
+site/public/
+site/node_modules/
+site/content/Profiles/**
+site/public/
