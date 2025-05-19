@@ -1,2 +1,4 @@
 "__pycache__/" 
 ".obsidian/" 
+"site/public/"    
+"site/node_modules/" 
