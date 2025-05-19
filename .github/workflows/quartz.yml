@@ -1,0 +1,56 @@
+name: Build & Deploy Quartz
+
+on:
+  push:
+    branches: [main]            # run on every push to main
+  workflow_dispatch:            # allow manual runs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'      # or 22 LTS if you prefer
+        cache: 'npm'
+
+    # install Quartz dependencies
+    - run: npm ci
+      working-directory: site
+
+    # run GEDCOM → Markdown (doit.py)
+    - name: Generate Profiles
+      run: python scripts/doit.py data/tree.ged -o site/content/Profiles
+
+    # build Quartz
+    - name: Build Quartz
+      run: npx quartz build
+      working-directory: site
+
+    # upload the built site as the Pages artifact
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: site/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+    - id: deploy
+      uses: actions/deploy-pages@v4
