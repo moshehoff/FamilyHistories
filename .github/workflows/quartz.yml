@@ -22,14 +22,15 @@ jobs:
     - name: Run container and extract build output
       run: |
         docker create --name build-run familyhistories
-        mkdir -p site/.quartz/build     # ✅ Create the output directory first
-        docker cp build-run:/app/site/.quartz/build ./site/.quartz/build
+        mkdir -p site/public
+        docker cp build-run:/app/site/public ./site/public
         docker rm build-run
 
     - name: Upload site as GitHub Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: site/.quartz/build
+        path: site/public
+
 
   deploy:
     needs: build
