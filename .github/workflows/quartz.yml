@@ -19,17 +19,19 @@ jobs:
     - name: Build Docker image
       run: docker build -t familyhistories .
 
-    - name: Run container and extract build output
+    - name: Run container and extract built site
       run: |
         docker create --name build-run familyhistories
-        mkdir -p site/public
+        docker start -a build-run                   # 🚀 This actually runs the site generation
+        mkdir -p site/public                        # Ensure local dir exists
         docker cp build-run:/app/site/public ./site/public
         docker rm build-run
 
-    - name: Upload site as GitHub Pages artifact
+    - name: Upload site to GitHub Pages
       uses: actions/upload-pages-artifact@v3
       with:
         path: site/public
+
 
 
   deploy:
