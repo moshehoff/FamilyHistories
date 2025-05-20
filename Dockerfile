@@ -18,4 +18,6 @@ WORKDIR /app
 COPY . .
 
 # Default command: build markdown and static site
-CMD ["bash", "-c", "python3 scripts/doit.py data/tree.ged -o site/content/profiles && cd site && npx quartz build"]
+CMD ["bash", "-c", "python3 scripts/doit.py data/tree.ged -o site/content/profiles && cd site && npx quartz build && echo '===[ Quartz Build Complete ]===' && find /app/site/public"]
+
+#CMD ["bash", "-c", "python3 scripts/doit.py data/tree.ged -o site/content/profiles && cd site && npx quartz build"]
