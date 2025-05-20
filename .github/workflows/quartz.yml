@@ -24,7 +24,7 @@ jobs:
         docker create --name build-run familyhistories
         docker start -a build-run                   # 🚀 This actually runs the site generation
         mkdir -p site/public                        # Ensure local dir exists
-        docker cp build-run:/app/site/public ./site/public
+        docker cp build-run:/app/site/public/. ./site/public
         docker rm build-run
 
     - name: Upload site to GitHub Pages
