@@ -1,6 +1,6 @@
 
-docker build -t familyhistories .
-
+docker build --no-cache -t familyhistories .
+docker run --rm familyhistories
 
 cd site
 npx quartz build --serve

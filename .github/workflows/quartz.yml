@@ -10,20 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
+    - name: Set up Docker
       uses: docker/setup-buildx-action@v3
 
     - name: Build Docker image
       run: docker build -t familyhistories .
 
-    - name: Run build inside Docker
+    - name: Run container to generate site
       run: |
         docker run --rm -v ${{ github.workspace }}:/app familyhistories
 
-    - name: Upload site as GitHub Pages artifact
+    - name: Upload to GitHub Pages
       uses: actions/upload-pages-artifact@v3
       with:
         path: site/.quartz/build/

@@ -1,29 +1,21 @@
-# Base image with Node.js
 FROM node:20-slim
-
 
 # Install Python
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set root working directory
+# Set working directory
 WORKDIR /app
 
-# Copy everything
+# Copy only Quartz dependencies first to cache `npm ci`
+WORKDIR /app/site
+COPY site/package*.json ./
+RUN npm ci
+
+# Copy the rest of the project
+WORKDIR /app
 COPY . .
 
-# Install Python deps (if any, otherwise skip)
-# RUN pip3 install -r requirements.txt
-
-# Move into site folder to install Quartz dependencies
-WORKDIR /app/site
-RUN npm install
-
-# Back to root to run Python, then build Quartz site from site/
-WORKDIR /app
+# Default command: build markdown and static site
 CMD ["bash", "-c", "python3 scripts/doit.py data/tree.ged -o site/content/profiles && cd site && npx quartz build"]
-
-
-
