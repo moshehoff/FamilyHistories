@@ -22,6 +22,7 @@ jobs:
     - name: Run container and extract build output
       run: |
         docker create --name build-run familyhistories
+        mkdir -p site/.quartz/build     # ✅ Create the output directory first
         docker cp build-run:/app/site/.quartz/build ./site/.quartz/build
         docker rm build-run
 
