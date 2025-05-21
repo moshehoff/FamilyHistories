@@ -212,11 +212,49 @@ def build_mermaid_graph(pid, p, fams, name_of):
 ##############################################################################
 
 def build_obsidian_notes(individuals, families, out_dir, bios_dir):
+    # Dictionary to map places to their Wikipedia article names
+    place_to_wiki = {
+        # Australia
+        "Subiaco, Perth, Western Australia, Australia": "Subiaco,_Western_Australia",
+        "Perth, Western Australia, Australia": "Perth,_Western_Australia",
+        "Perth, WA, Australia": "Perth,_Western_Australia",
+        "Perth, Australia": "Perth,_Western_Australia",
+        "Perth": "Perth,_Western_Australia",
+        "Sydney, NSW, Australia": "Sydney",
+        "Sydney, New South Wales, Australia": "Sydney",
+        "Brisbane, Queensland, Australia": "Brisbane",
+        
+        # Israel
+        "Rehovot, Israel": "Rehovot",
+        "Rehovot, Center District, Israel": "Rehovot",
+        "Jerusalem": "Jerusalem",
+        
+        # Europe
+        "Wien, Austria": "Vienna",
+        "Vienna, Vienna, Austria": "Vienna",
+        "Nikolsburg (Mikulov), Moravia, Czechoslovakia": "Mikulov",
+        "Blackburn, Lancashire, England (United Kingdom)": "Blackburn,_Lancashire",
+        "Pitten or Schwarzau am Steinfeld, near Neunkirchen, Lower Austria, Austria": "Neunkirchen,_Lower_Austria",
+        
+        # Eastern Europe/Asia
+        "Savran, Podolia, Odessa oblast, Ukraine": "Savran,_Ukraine",
+        "Bershad, Ukraine": "Bershad",
+        "Hamedan, Iran, Islamic Republic of": "Hamadan",
+        
+        # Add more mappings as needed
+    }
+
     inds = {i: norm_individual(i, d) for i, d in individuals.items()}
     fams = {f: norm_family(f, d) for f, d in families.items()}
     name_of = {i: info["name"] or i for i, info in inds.items()}
 
-    wl  = lambda lbl: f"[[{lbl or 'Unknown'}]]"
+    wl = lambda lbl: f"[[{lbl or 'Unknown'}]]"  # For person links
+    def wl_place(place):
+        if not place:
+            return ""
+        # Try to find a mapping, if not found use the place name directly
+        wiki_name = place_to_wiki.get(place, place.replace(" ", "_"))
+        return f"[{place}](https://en.wikipedia.org/wiki/{wiki_name})"
     ptr = lambda iid: wl(name_of.get(iid, iid)) if iid else ""
 
     people_dir = os.path.join(out_dir, "People")
@@ -249,8 +287,8 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
                     bio_text = bf.read().strip()
                 break
 
-        bp_link = wl(p["birth_place"]) if p["birth_place"] else ""
-        dp_link = wl(p["death_place"]) if p["death_place"] else ""
+        bp_link = wl_place(p["birth_place"]) if p["birth_place"] else ""
+        dp_link = wl_place(p["death_place"]) if p["death_place"] else ""
 
         # Generate Mermaid family tree diagram
         mermaid_diagram = build_mermaid_graph(pid, p, fams, name_of)
@@ -260,7 +298,7 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
             f"**Birth**: {p['birth_date']}" + (f" at {bp_link}" if bp_link else ""),
             f"**Death**: {p['death_date']}" + (f" at {dp_link}" if dp_link else ""),
             f"**Occupation**: {p['occupation'] or '—'}",
-            mermaid_diagram,  # Remove the Family Tree title
+            mermaid_diagram,
             "\n**Parents**:\n"   + ("\n".join(parents)  or "—"),
             "\n**Siblings**:\n" + ("\n".join(siblings) or "—"),
             "\n**Spouse**:\n"   + ("\n".join(spouses)  or "—"),
@@ -303,21 +341,71 @@ def write_people_index(people_dir):
 # 5) CLI
 ##############################################################################
 
+def collect_unique_places(individuals):
+    """Collect all unique birth and death places from individuals."""
+    places = set()
+    for person in individuals.values():
+        birth_place = person.get("BIRT", {}).get("PLAC")
+        death_place = person.get("DEAT", {}).get("PLAC")
+        if birth_place:
+            places.add(birth_place)
+        if death_place:
+            places.add(death_place)
+    return sorted(places)
+
+def analyze_places(individuals):
+    """Analyze and collect all unique places from the GEDCOM file.
+    
+    This helps maintain the place_to_wiki mapping dictionary by showing:
+    1. All unique places that need mapping
+    2. Which places are variants of the same location
+    3. Places that might be missing from the mapping
+    """
+    places = {}  # place -> count
+    for person in individuals.values():
+        birth = person.get("BIRT", {})
+        death = person.get("DEAT", {})
+        residence = person.get("RESI", {})
+        
+        if "PLAC" in birth:
+            place = birth["PLAC"]
+            places[place] = places.get(place, 0) + 1
+        if "PLAC" in death:
+            place = death["PLAC"]
+            places[place] = places.get(place, 0) + 1
+        if "PLAC" in residence:
+            place = residence["PLAC"]
+            places[place] = places.get(place, 0) + 1
+    
+    # Sort by count descending
+    sorted_places = sorted(places.items(), key=lambda x: (-x[1], x[0]))
+    
+    print("\nPlace Analysis:")
+    print("===============")
+    for place, count in sorted_places:
+        print(f"{count:2d}x {place}")
+    print("\nTotal unique places:", len(places))
+    return places
+
 def main():
     argp = argparse.ArgumentParser(description="GEDCOM ➜ Obsidian notes + bios merge")
     argp.add_argument("gedcom_file", help="Path to .ged file")
     argp.add_argument("-o", "--output", default="ObsidianVault", help="Output directory")
-    argp.add_argument("--bios-dir", default=None, help="Directory with bio *.md files (default: <output>/bios)")
+    argp.add_argument("--bios-dir", default=None, help="Directory with bio *.md files (default: <o>/bios)")
+    argp.add_argument("--analyze-places", action="store_true", help="Analyze unique places in the GEDCOM file")
     args = argp.parse_args()
 
     args.bios_dir = args.bios_dir or os.path.join(args.output, "bios")
-
     os.makedirs(args.output, exist_ok=True)
-    debug("Parsing GEDCOM …")
-    inds, fams = parse_gedcom_file(args.gedcom_file)
-    debug(f"{len(inds)} individuals • {len(fams)} families")
-    debug("Building Markdown notes …")
-    build_obsidian_notes(inds, fams, args.output, args.bios_dir)
+    os.makedirs(args.bios_dir, exist_ok=True)
+
+    individuals, families = parse_gedcom_file(args.gedcom_file)
+    
+    if args.analyze_places:
+        analyze_places(individuals)
+        return
+
+    build_obsidian_notes(individuals, families, args.output, args.bios_dir)
 
     ### NEW: כתוב עמוד אינדקס לאנשים
     write_people_index(os.path.join(args.output, "People"))

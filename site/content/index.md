@@ -1,6 +1,5 @@
 ---
-title: Welcome to Quartz
+title: Welcome to the Hoffman/Spielman families hisories site
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+those are all the profiles: [[profiles/People/index|index]]
