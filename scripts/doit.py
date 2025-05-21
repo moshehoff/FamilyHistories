@@ -124,6 +124,89 @@ def norm_family(fid, d):
     return {"id": fid, "husband": d.get("HUSB", ""), "wife": d.get("WIFE", ""), "children": kids}
 
 
+def build_mermaid_graph(pid, p, fams, name_of):
+    """Build a Mermaid graph showing the person's immediate family relationships."""
+    lines = ["```mermaid", "flowchart TD", 
+            "classDef person fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;",
+            "classDef internal-link fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;"]
+    
+    # Helper to create node IDs and labels
+    def node_id(iid): return f'id{iid.replace("@", "")}'
+    def node_label(iid): 
+        name = name_of.get(iid, iid)
+        # Remove problematic characters from display name
+        name = name.replace('"', "'")
+        return name
+    def make_node(iid):
+        node = node_id(iid)
+        name = node_label(iid)
+        lines.append(f'{node}["{name}"]')
+        lines.append(f'class {node} internal-link')
+        return node
+    
+    # Add the central person
+    person_node = make_node(pid)
+    
+    # Add parents and their relationship
+    if p["famc"] in fams:
+        fam = fams[p["famc"]]
+        if fam.get("husband") or fam.get("wife"):
+            # Parents
+            father_node = None
+            mother_node = None
+            if fam.get("husband"):
+                father_node = make_node(fam["husband"])
+            if fam.get("wife"):
+                mother_node = make_node(fam["wife"])
+            
+            # Marriage connection
+            if father_node and mother_node:
+                marriage_node = f'marriage_{node_id(fam["id"])}'
+                lines.append(f'{marriage_node}((" "))')
+                lines.append(f'{father_node} --- {marriage_node}')
+                lines.append(f'{mother_node} --- {marriage_node}')
+                lines.append(f'{marriage_node} --> {person_node}')
+            else:
+                # Single parent
+                parent_node = father_node or mother_node
+                lines.append(f'{parent_node} --> {person_node}')
+    
+    # Add spouses and children
+    for fid in p["fams"]:
+        if fid not in fams:
+            continue
+        fam = fams[fid]
+        
+        # Add spouse
+        spouse_id = None
+        if fam.get("husband") == pid and fam.get("wife"):
+            spouse_id = fam["wife"]
+        elif fam.get("wife") == pid and fam.get("husband"):
+            spouse_id = fam["husband"]
+        
+        if spouse_id:
+            spouse_node = make_node(spouse_id)
+            
+            # Marriage connection
+            marriage_node = f'marriage_{node_id(fid)}'
+            lines.append(f'{marriage_node}((" "))')
+            lines.append(f'{person_node} --- {marriage_node}')
+            lines.append(f'{spouse_node} --- {marriage_node}')
+            
+            # Add children
+            for child_id in fam.get("children", []):
+                child_node = make_node(child_id)
+                lines.append(f'{marriage_node} --> {child_node}')
+        else:
+            # Single parent with children
+            for child_id in fam.get("children", []):
+                child_node = make_node(child_id)
+                lines.append(f'{person_node} --> {child_node}')
+    
+    lines.append("```")
+    return "\n".join(lines)
+
+
 ##############################################################################
 # 3) BUILD NOTES (wiki-links + bios)
 ##############################################################################
@@ -169,11 +252,15 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
         bp_link = wl(p["birth_place"]) if p["birth_place"] else ""
         dp_link = wl(p["death_place"]) if p["death_place"] else ""
 
+        # Generate Mermaid family tree diagram
+        mermaid_diagram = build_mermaid_graph(pid, p, fams, name_of)
+
         lines = [
             f"# {p['name']}",
             f"**Birth**: {p['birth_date']}" + (f" at {bp_link}" if bp_link else ""),
             f"**Death**: {p['death_date']}" + (f" at {dp_link}" if dp_link else ""),
             f"**Occupation**: {p['occupation'] or '—'}",
+            mermaid_diagram,  # Remove the Family Tree title
             "\n**Parents**:\n"   + ("\n".join(parents)  or "—"),
             "\n**Siblings**:\n" + ("\n".join(siblings) or "—"),
             "\n**Spouse**:\n"   + ("\n".join(spouses)  or "—"),
