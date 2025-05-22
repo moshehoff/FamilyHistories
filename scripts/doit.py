@@ -387,6 +387,47 @@ def analyze_places(individuals):
     print("\nTotal unique places:", len(places))
     return places
 
+def write_bios_index(people_dir, bios_dir):
+    """Create/overwrite People/bios.md with links to profiles that have biographies."""
+    # Get all biography files
+    bio_ids = {
+        os.path.splitext(f)[0] 
+        for f in os.listdir(bios_dir) 
+        if f.endswith(('.md', '.MD'))
+    }
+    
+    # Get all profile files that have matching bios
+    profiles_with_bios = []
+    for fname in sorted(os.listdir(people_dir)):
+        if not fname.endswith('.md') or fname in ('index.md', 'bios.md'):
+            continue
+            
+        profile_path = os.path.join(people_dir, fname)
+        with open(profile_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            
+        # Extract the GEDCOM ID from the profile
+        if '**GEDCOM ID**: @' in content:
+            gedcom_id = content.split('**GEDCOM ID**: @')[1].split('@')[0]
+            if gedcom_id in bio_ids:
+                profiles_with_bios.append((fname[:-3], fname))  # (title, filename)
+
+    # Create the index page
+    lines = [
+        "# Profiles with Biographies\n",
+        "This page lists all family members who have biographical information.\n"
+    ]
+    
+    if profiles_with_bios:
+        for title, fname in profiles_with_bios:
+            url = urllib.parse.quote(fname)
+            lines.append(f"* [{title}]({url})")
+    else:
+        lines.append("*No biographical information available yet.*")
+
+    with open(os.path.join(people_dir, "bios.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
 def main():
     argp = argparse.ArgumentParser(description="GEDCOM ➜ Obsidian notes + bios merge")
     argp.add_argument("gedcom_file", help="Path to .ged file")
@@ -407,8 +448,9 @@ def main():
 
     build_obsidian_notes(individuals, families, args.output, args.bios_dir)
 
-    ### NEW: כתוב עמוד אינדקס לאנשים
-    write_people_index(os.path.join(args.output, "People"))
+    people_dir = os.path.join(args.output, "People")
+    write_people_index(people_dir)  # Write main index
+    write_bios_index(people_dir, args.bios_dir)  # Write bios index
 
     debug(f"Done → {args.output}")
 
