@@ -296,7 +296,7 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
             verbose_debug(f"Bio file exists: {os.path.isfile(bio_path)}")
             if os.path.isfile(bio_path):
                 with open(bio_path, encoding="utf-8") as bf:
-                    bio_text = bf.read().strip()
+                    bio_text = bf.read().replace('\r', '').strip()
                 verbose_debug(f"Found bio for {p['name']} at {bio_path}")
                 break
 
