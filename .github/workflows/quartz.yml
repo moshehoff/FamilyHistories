@@ -25,6 +25,9 @@ jobs:
         docker start -a build-run                   # 🚀 This actually runs the site generation
         mkdir -p site/public                        # Ensure local dir exists
         docker cp build-run:/app/site/public/. ./site/public
+        # Debug: Check if bios is in contentIndex.json
+        echo "Checking contentIndex.json for bios entry:"
+        cat ./site/public/static/contentIndex.json | grep -C 5 "bios"
         docker rm build-run
 
     - name: Upload site to GitHub Pages
