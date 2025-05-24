@@ -250,7 +250,7 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
 
     wl = lambda lbl: f"[[{lbl or 'Unknown'}]]"  # For person links
     def wl_place(place):
-        if not place:
+        if not place:   
             return ""
         # Try to find a mapping, if not found use the place name directly
         wiki_name = place_to_wiki.get(place, place.replace(" ", "_"))
@@ -294,7 +294,10 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
         mermaid_diagram = build_mermaid_graph(pid, p, fams, name_of)
 
         lines = [
-            f"# {p['name']}",
+            "---",
+            "type: profile",
+            "title: " + p['name'],
+            "---",
             f"**Birth**: {p['birth_date']}" + (f" at {bp_link}" if bp_link else ""),
             f"**Death**: {p['death_date']}" + (f" at {dp_link}" if dp_link else ""),
             f"**Occupation**: {p['occupation'] or '—'}",
