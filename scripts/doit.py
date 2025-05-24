@@ -7,6 +7,9 @@ import urllib.parse
 def debug(msg):
     print(f"[DEBUG] {msg}")
 
+def verbose_debug(msg):
+    print(f"[VERBOSE DEBUG] {msg}")
+
 
 def safe_filename(name: str) -> str:
     """Return a filename-safe version of *name* (עברית, (), ', -, _)."""
@@ -260,6 +263,12 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
     people_dir = os.path.join(out_dir, "People")
     os.makedirs(people_dir, exist_ok=True)
 
+    verbose_debug(f"Output directory for profiles: {people_dir}")
+    verbose_debug(f"Bios directory: {bios_dir}")
+    verbose_debug(f"Checking if bios directory exists: {os.path.exists(bios_dir)}")
+    if os.path.exists(bios_dir):
+        verbose_debug(f"Listing files in bios directory: {os.listdir(bios_dir)}")
+
     for pid, p in inds.items():
         parents, siblings = [], []
         if p["famc"] and p["famc"] in fams:
@@ -280,11 +289,15 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
 
         id_clean = pid.replace("@", "")
         bio_text = ""
+        verbose_debug(f"Looking for bio for ID: {id_clean}")
         for ext in ("md", "MD"):
             bio_path = os.path.join(bios_dir, f"{id_clean}.{ext}")
+            verbose_debug(f"Checking bio path: {bio_path}")
+            verbose_debug(f"Bio file exists: {os.path.isfile(bio_path)}")
             if os.path.isfile(bio_path):
                 with open(bio_path, encoding="utf-8") as bf:
                     bio_text = bf.read().strip()
+                verbose_debug(f"Found bio for {p['name']} at {bio_path}")
                 break
 
         bp_link = wl_place(p["birth_place"]) if p["birth_place"] else ""
