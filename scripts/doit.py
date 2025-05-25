@@ -269,6 +269,16 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
     if os.path.exists(bios_dir):
         verbose_debug(f"Listing files in bios directory: {os.listdir(bios_dir)}")
 
+    # Build index of profiles for people
+    profile_index_lines = ["All People", ""]
+    for pid, p in inds.items():
+        profile_index_lines.append(f"- [[{p['name']}]]")
+
+    with open(os.path.join(people_dir, "index.md"), "w", encoding="utf-8") as f:
+        f.write("# People\n\n")
+        f.write("\n".join(profile_index_lines))
+        f.write("\n")
+
     for pid, p in inds.items():
         parents, siblings = [], []
         if p["famc"] and p["famc"] in fams:
@@ -331,6 +341,23 @@ def build_obsidian_notes(individuals, families, out_dir, bios_dir):
         with open(out_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines) + "\n")
 
+    # Build index of bios (profiles with biographies)
+    bios_index_lines = ["Profiles with Biographies", "This page lists all family members who have biographical information.", ""]
+    for pid, p in inds.items():
+        id_clean = safe_filename(pid)
+        for ext in ("md", "MD"):
+            bio_path = os.path.join(bios_dir, f"{id_clean}.{ext}")
+            verbose_debug(f"Checking bio path: {bio_path}")
+            verbose_debug(f"Bio file exists: {os.path.isfile(bio_path)}")
+            if os.path.isfile(bio_path):
+                bios_index_lines.append(f"- [[{p['name']}]]")
+                break
+
+    with open(os.path.join(people_dir, "bios.md"), "w", encoding="utf-8") as f:
+        f.write("# Biographies\n\n")
+        f.write("\n".join(bios_index_lines))
+        f.write("\n")
+
 
 ##############################################################################
 # 4) CREATE People/index.md  ### NEW
@@ -343,8 +370,16 @@ def write_people_index(people_dir):
         if f.lower().endswith(".md") and f != "index.md"
     )
 
-    lines = ["# All People\n"]
+    profile_files = []
     for fname in files:
+        file_path = os.path.join(people_dir, fname)
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            if "type: profile" in content.split("---")[1]:
+                profile_files.append(fname)
+
+    lines = ["# All People\n"]
+    for fname in profile_files:
         title = fname[:-3]                      # strip .md
         url   = urllib.parse.quote(fname)       # encode spaces/עברית
         lines.append(f"* [{title}]({url})")
